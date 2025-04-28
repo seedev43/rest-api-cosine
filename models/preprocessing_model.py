@@ -4,6 +4,7 @@ import math
 import re
 import string 
 import nltk
+nltk.download('punkt_tab')
 from nltk.tokenize import word_tokenize
 from num2words import num2words
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory, ArrayDictionary, StopWordRemover
