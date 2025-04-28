@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify
 from models.preprocessing_model import TextPreprocessor
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from models.cosine_similarity import calculate_cosine_similarity
+# from sklearn.feature_extraction.text import CountVectorizer
+# from sklearn.metrics.pairwise import cosine_similarity
 
 
 app = Flask(__name__)
@@ -25,11 +26,12 @@ def check_similarity():
     process_text1 = preprocessor.preprocess(text1)
     process_text2 = preprocessor.preprocess(text2)
 
-    vectorizer = CountVectorizer()
-    converted_matrix = vectorizer.fit_transform([process_text1, process_text2])
+    # vectorizer = CountVectorizer()
+    # converted_matrix = vectorizer.fit_transform([process_text1, process_text2])
 
     # Menghitung cosine similarity 
-    cosine_sim = cosine_similarity(converted_matrix[0], converted_matrix[1])[0][0]
+    # cosine_sim = cosine_similarity(converted_matrix[0], converted_matrix[1])[0][0]
+    cosine_sim = calculate_cosine_similarity(process_text1, process_text2)
 
     threshold_similar = 0.8
     threshold_medium = 0.5
