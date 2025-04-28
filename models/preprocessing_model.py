@@ -3,9 +3,9 @@ from collections import Counter
 import math
 import re
 import string 
-import nltk
-nltk.download('punkt_tab')
-from nltk.tokenize import word_tokenize
+# import nltk
+# nltk.download('punkt_tab')
+# from nltk.tokenize import word_tokenize
 from num2words import num2words
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory, ArrayDictionary, StopWordRemover
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
@@ -19,10 +19,16 @@ class TextPreprocessor:
         
         # Setup stopwords
         stopword_data = self.stopword_factory.get_stop_words()
-        more_stopword = ['jumlah', 'sebanyak', 'lainnya']
+        more_stopword = [
+            'jumlah', 'sebanyak', 'lainnya', 'lebih', 'melakukan',
+            'kata', 'melalui', 'mengatakan', 'sebesar', 'terbesar',
+            'digunakan', 'keterangan', 'tertulis', 'dipakai', 'pengeluaran',
+            'dikarenakan', 'karena', 'hari', 'awal'
+        ]
         stopword_data = stopword_data + more_stopword
         dictionary = ArrayDictionary(stopword_data)
         self.stopword = StopWordRemover(dictionary)
+        
         
         # Setup angka teks
         self.angka_teks = set(num2words(i, lang='id') for i in range(0, 101))
@@ -30,11 +36,37 @@ class TextPreprocessor:
         # Roman numeral pattern
         self.roman_pattern = r'^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$'
         
-    def case_folding(self, text):
-        return text.lower()
+    def case_folding(self, word):
+        return word.lower()
     
-    def tokenizing(self, text):
-        return word_tokenize(text)
+    def tokenizing(self, word):
+        # punctuation = r'[.,;:!?()\[\]{}"\'/\\]'
+  
+        # # Memisahkan tanda baca dengan spasi
+        # word = re.sub(f'({punctuation})', r' \1 ', word)
+        
+        # # Menghapus spasi berlebih
+        # word = re.sub(r'\s+', ' ', word).strip()
+        
+        # Memisahkan kata-kata
+        # return word.split()
+        # print(word_tokenize(word))
+        tokens = re.findall(r'\d{1,3}(?:\.\d{3})+|\d+,\d+|\w+|%|[^\w\s]', word, re.UNICODE)
+        return tokens
+        # return word_tokenize(word)
+
+    def remove_punctuation(self, tokens):
+        cleaned_tokens = [
+            token for token in tokens
+            if (
+                re.match(r'^\d{1,3}(?:\.\d{3})+$', token)  # angka bertitik
+                or re.match(r'^\d+,\d+$', token)           # angka berkoma
+                or re.match(r'^\w+$', token)               # kata biasa
+                or token == '%'                            # SIMBOL % DIPERTAHANKAN
+            )
+        ]
+        # print(cleaned_tokens)
+        return cleaned_tokens
     
     def is_roman_numeral(self, word):
         return bool(re.match(self.roman_pattern, word.upper()))
@@ -125,11 +157,30 @@ class TextPreprocessor:
         return result
     
     def remove_stopwords(self, words):
+        filtered_words = []
+        for word in words:
+            # If word is a number word, keep it
+            if word in self.angka_teks:
+                filtered_words.append(word)
+            else:
+                # Remove stopwords using Sastrawi
+                processed_word = self.stopword.remove(word)
+                if processed_word:  # If word is not a stopword
+                    filtered_words.append(word)
+        
+        return filtered_words 
         return [word for word in words if word in self.stopword.remove(word) or word in self.angka_teks]
     
     def stemming(self, words):
         stemmed_words = [self.stemmer.stem(word) for word in words]
-        stemmed_words = ['capai' if word == 'capa' else word for word in stemmed_words]
+        replacements = {
+            'capa': 'capai',
+            'bas': 'belas',
+        }
+        
+        # Mengganti kata-kata sesuai dengan dictionary
+        stemmed_words = [replacements.get(word, word) for word in stemmed_words]
+        # stemmed_words = ['capai' if word == 'capa' else word for word in stemmed_words]
         return stemmed_words
     
     def preprocess(self, text):
@@ -138,6 +189,9 @@ class TextPreprocessor:
         
         # Tokenizing
         tokens = self.tokenizing(text)
+
+        # Remove punctuation
+        tokens = self.remove_punctuation(tokens)
         
         # Roman to int
         tokens = self.roman_to_int(tokens)
@@ -153,12 +207,12 @@ class TextPreprocessor:
         
         return ' '.join(tokens)
 
-def save_preprocessor(preprocessor, filename):
-    """Save the preprocessor object to a file"""
-    with open(filename, 'wb') as f:
-        pickle.dump(preprocessor, f)
+# def save_preprocessor(preprocessor, filename):
+#     """Save the preprocessor object to a file"""
+#     with open(filename, 'wb') as f:
+#         pickle.dump(preprocessor, f)
 
-def load_preprocessor(filename):
-    """Load the preprocessor object from a file"""
-    with open(filename, 'rb') as f:
-        return pickle.load(f)
+# def load_preprocessor(filename):
+#     """Load the preprocessor object from a file"""
+#     with open(filename, 'rb') as f:
+#         return pickle.load(f)
