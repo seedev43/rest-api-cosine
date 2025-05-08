@@ -3,9 +3,9 @@ from collections import Counter
 import math
 import re
 import string 
-# import nltk
+import nltk
 # nltk.download('punkt_tab')
-# from nltk.tokenize import word_tokenize
+from nltk.tokenize import word_tokenize
 from num2words import num2words
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory, ArrayDictionary, StopWordRemover
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
@@ -52,8 +52,8 @@ class TextPreprocessor:
         # return word.split()
         # print(word_tokenize(word))
         tokens = re.findall(r'\d{1,3}(?:\.\d{3})+|\d+,\d+|\w+|%|[^\w\s]', word, re.UNICODE)
-        return tokens
-        # return word_tokenize(word)
+        # return tokens
+        return word_tokenize(word)
 
     def remove_punctuation(self, tokens):
         cleaned_tokens = [
@@ -191,7 +191,7 @@ class TextPreprocessor:
         tokens = self.tokenizing(text)
 
         # Remove punctuation
-        tokens = self.remove_punctuation(tokens)
+        # tokens = self.remove_punctuation(tokens)
         
         # Roman to int
         tokens = self.roman_to_int(tokens)
