@@ -4,6 +4,10 @@ import math
 import re
 import string 
 import nltk
+import os
+
+nltk_data_path = os.path.join(os.path.dirname(__file__), 'nltk_data')
+nltk.data.path.append(nltk_data_path)
 # nltk.download('punkt_tab')
 from nltk.tokenize import word_tokenize
 from num2words import num2words
