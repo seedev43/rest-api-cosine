@@ -5,6 +5,7 @@ import re
 import string 
 import nltk
 import os
+from roman import fromRoman
 
 nltk_data_path = os.path.join(os.path.dirname(__file__), 'nltk_data')
 nltk.data.path.append(nltk_data_path)
@@ -20,6 +21,8 @@ class TextPreprocessor:
         self.stopword_factory = StopWordRemoverFactory()
         self.stemmer_factory = StemmerFactory()
         self.stemmer = self.stemmer_factory.create_stemmer()
+        self.ROMAN_REGEX = re.compile(r'^(?P<roman>M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))(?:-(?P<suffix>\w+))?$', re.IGNORECASE)
+        self.EXCLUDED_WORDS = {'di', 'ke', 'dan'}
         
         # Setup stopwords
         stopword_data = self.stopword_factory.get_stop_words()
@@ -113,6 +116,45 @@ class TextPreprocessor:
 
         return result
     
+    def convert_roman_in_token(self, token_list):
+        result = []
+        prev_token = None  # Variabel untuk menyimpan token sebelumnya
+
+        for token in token_list:
+            token_lower = token.lower()
+
+            # Lewati token jika termasuk dalam daftar pengecualian
+            if token_lower in self.EXCLUDED_WORDS:
+                result.append(token)
+                prev_token = token
+                continue
+
+            # Cek apakah token sebelumnya adalah angka dan token sekarang adalah huruf Romawi
+            if prev_token and prev_token.isdigit() and token_lower in ['m', 'd', 'c', 'l', 'x', 'v', 'i']:
+                # Abaikan huruf Romawi jika berada setelah angka
+                result.append(token)
+                prev_token = token
+                continue
+
+            # Cek regex: apakah token adalah kandidat angka Romawi
+            match = self.ROMAN_REGEX.fullmatch(token)
+            if match:
+                roman_part = match.group("roman").upper()
+                suffix = match.group("suffix") or ""
+                try:
+                    number = fromRoman(roman_part)
+                    result.append(str(number) + suffix)
+                    prev_token = token
+                    continue
+                except:
+                    pass  # Gagal konversi, skip
+
+            else:
+                result.append(token)  # Token tidak cocok
+                prev_token = token  # Set token sekarang sebagai token sebelumnya
+
+        return result
+    
     def number_to_text(self, word):
         return num2words(int(word), lang='id')
     
@@ -198,7 +240,8 @@ class TextPreprocessor:
         # tokens = self.remove_punctuation(tokens)
         
         # Roman to int
-        tokens = self.roman_to_int(tokens)
+        # tokens = self.roman_to_int(tokens)
+        tokens = self.convert_roman_in_token(tokens)
         
         # Number to text
         tokens = self.fungsi_terbilang(tokens)
