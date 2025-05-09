@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from models.preprocessing_model import TextPreprocessor
 from models.cosine_similarity import calculate_cosine_similarity
 # from sklearn.feature_extraction.text import CountVectorizer
@@ -10,6 +10,10 @@ app = Flask(__name__)
 @app.route('/', methods=['GET'])
 def main_page():
     return "Hello World"
+
+@app.route('/form')
+def form_page():
+    return render_template('form.html')
 
 
 @app.route('/similarity', methods=['GET'])

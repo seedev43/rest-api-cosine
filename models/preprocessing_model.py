@@ -22,7 +22,8 @@ class TextPreprocessor:
         self.stemmer_factory = StemmerFactory()
         self.stemmer = self.stemmer_factory.create_stemmer()
         self.ROMAN_REGEX = re.compile(
-            r'^(?P<roman>M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))(?P<suffix>-\w+)?$',
+            r'^(?P<prefix>ke-)?(?P<roman>M{0,4}(CM|CD|D?C{0,3})'
+            r'(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))(?P<suffix>-\w+)?$',
             re.IGNORECASE
         )
         self.EXCLUDED_WORDS = {'di', 'ke', 'dan'}
@@ -121,38 +122,31 @@ class TextPreprocessor:
     
     def convert_roman_in_token(self, token_list):
         result = []
-        prev_token = None
-
-        for token in token_list:
+        for i, token in enumerate(token_list):
             token_lower = token.lower()
 
-            # Jangan konversi jika masuk dalam pengecualian
+            # Cek jika token sebelumnya adalah angka dan token ini kandidat Romawi → skip
+            if i > 0 and token_list[i-1].isdigit():
+                result.append(token)
+                continue
+
             if token_lower in self.EXCLUDED_WORDS:
                 result.append(token)
-                prev_token = token
                 continue
 
-            # Jangan konversi jika token adalah huruf Romawi setelah angka
-            if prev_token and prev_token.isdigit() and token_lower in ['m', 'd', 'c', 'l', 'x', 'v', 'i']:
-                result.append(token)
-                prev_token = token
-                continue
-
-            # Cek apakah token cocok dengan pola Romawi
             match = self.ROMAN_REGEX.fullmatch(token)
             if match:
                 roman_part = match.group("roman").upper()
+                prefix = match.group("prefix") or ""
                 suffix = match.group("suffix") or ""
                 try:
                     number = fromRoman(roman_part)
-                    result.append(str(number) + suffix)
+                    result.append(f"{prefix}{number}{suffix}")
+                    continue
                 except:
-                    result.append(token)  # Gagal konversi
-            else:
-                result.append(token)
+                    pass  # skip jika gagal konversi
 
-            prev_token = token
-
+            result.append(token)
         return result
 
     
