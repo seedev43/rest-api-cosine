@@ -1,0 +1,118 @@
+[
+  {
+    "id": "history_e131090b-a770-4a54-bcea-99084f7653c1",
+    "executionDate": "Fri, 09 May 2025 11:50:12 GMT",
+    "collectionId": "",
+    "name": "Untitled Request",
+    "description": "",
+    "requestMethodDTO": {
+      "type": "GET"
+    },
+    "url": "http://127.0.0.1:5000",
+    "queryParams": [],
+    "pathVariables": [],
+    "headers": [
+      {
+        "selected": true,
+        "key": "user-agent",
+        "type": {
+          "type": "RAW"
+        },
+        "rawDTO": {
+          "value": "Keyrunner"
+        }
+      },
+      {
+        "selected": true,
+        "key": "cache-control",
+        "type": {
+          "type": "RAW"
+        },
+        "rawDTO": {
+          "value": "No-Cache"
+        }
+      },
+      {
+        "selected": true,
+        "key": "Accept-Encoding",
+        "type": {
+          "type": "RAW"
+        },
+        "rawDTO": {
+          "value": "gzip, deflate, br"
+        }
+      },
+      {
+        "selected": true,
+        "key": "Connection",
+        "type": {
+          "type": "RAW"
+        },
+        "rawDTO": {
+          "value": "keep-alive"
+        }
+      },
+      {
+        "selected": true,
+        "key": "accept",
+        "type": {
+          "type": "RAW"
+        },
+        "rawDTO": {
+          "value": "*/*"
+        }
+      }
+    ],
+    "bodyDTO": {
+      "Content-Type": "None",
+      "raw": {
+        "value": "{}"
+      },
+      "binary": "",
+      "valueRetriever": []
+    },
+    "expectedResponseDTO": {
+      "body": "{}",
+      "Content-Type": "application/json",
+      "statusCode": 0,
+      "pathsToIgnore": [],
+      "headers": [
+        {
+          "key": "content-type",
+          "value": "application/json"
+        }
+      ]
+    },
+    "actualResponseDTO": {
+      "statusText": "NOT FOUND",
+      "statusCode": 404,
+      "body": "",
+      "headers": {
+        "server": "Werkzeug/3.1.3 Python/3.10.17",
+        "date": "Fri, 09 May 2025 11:50:12 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "content-length": "207",
+        "connection": "close"
+      },
+      "responseCookies": []
+    },
+    "authDTO": {
+      "typeDTO": "NONE",
+      "valueDTO": []
+    },
+    "tests": [
+      {
+        "test": "",
+        "action": "",
+        "value": ""
+      }
+    ],
+    "preScripts": "",
+    "postScripts": "",
+    "useCertBasedAuth": false,
+    "requestTimeout": "30",
+    "projectId": "",
+    "tenantId": "",
+    "workspaceId": null
+  }
+]

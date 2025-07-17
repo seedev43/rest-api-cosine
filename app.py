@@ -16,12 +16,13 @@ def form_page():
     return render_template('form.html')
 
 
-@app.route('/similarity', methods=['GET'])
+@app.route('/similarity', methods=['POST'])
 def check_similarity():
     preprocessor = TextPreprocessor()
 
-    text1 = request.args.get('text1', "").strip()
-    text2 = request.args.get('text2', "").strip()
+    data = request.get_json()
+    text1 = data.get('text1', "").strip()
+    text2 = data.get('text2', "").strip()
 
     if not text1 or not text2:
         return jsonify({"success": False, "message": "Masukkan kalimat 1 dan kalimat 2 untuk memproses"}), 400
